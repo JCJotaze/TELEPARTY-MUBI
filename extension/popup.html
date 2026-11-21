@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mubi Sync</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <h1>🎬 Mubi Sync</h1>
+
+  <label for="serverUrl">Servidor de sincronización</label>
+  <input id="serverUrl" type="text" placeholder="wss://tu-servidor.onrender.com" />
+
+  <label for="room">Código de sala</label>
+  <input id="room" type="text" placeholder="ej: pelicula-viernes" />
+
+  <label for="name">Tu nombre (opcional)</label>
+  <input id="name" type="text" placeholder="Ana" />
+
+  <div class="buttons">
+    <button id="connectBtn">Conectar</button>
+    <button id="disconnectBtn" class="secondary">Desconectar</button>
+  </div>
+
+  <div id="status" class="status offline">Desconectado</div>
+  <div id="peers" class="peers"></div>
+
+  <p class="hint">
+    Abre la misma película en Mubi en ambas PCs, usa el mismo código de sala
+    y conecta en ambos navegadores. Cada quien reproduce con su propia cuenta.
+  </p>
+
+  <script src="popup.js"></script>
+</body>
+</html>

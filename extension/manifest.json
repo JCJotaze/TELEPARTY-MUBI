@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Mubi Sync",
+  "version": "1.0.0",
+  "description": "Sincroniza play, pausa y avance de Mubi entre dos personas conectadas (cada una con su propia cuenta).",
+  "permissions": ["storage", "tabs"],
+  "host_permissions": ["*://*.mubi.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.mubi.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle",
+      "all_frames": true
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Mubi Sync"
+  }
+}
