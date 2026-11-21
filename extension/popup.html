@@ -2,34 +2,68 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Mubi Sync</title>
+  <title>Watch Party for MUBI</title>
   <link rel="stylesheet" href="popup.css" />
 </head>
 <body>
-  <h1>🎬 Mubi Sync</h1>
+  <header>
+    <img src="icons/icon48.png" alt="" width="24" height="24" />
+    <h1>Watch Party <span>for MUBI</span></h1>
+    <button id="editProfileBtn" class="avatar-btn" title="Editar perfil" hidden></button>
+  </header>
 
-  <label for="serverUrl">Servidor de sincronización</label>
-  <input id="serverUrl" type="text" placeholder="wss://tu-servidor.onrender.com" />
+  <!-- Perfil (primera vez o al editar) -->
+  <section id="profileView" hidden>
+    <p class="lead">Crea tu perfil para que tus amigos sepan quién eres.</p>
+    <label for="nameInput">Tu nombre</label>
+    <input id="nameInput" type="text" maxlength="24" placeholder="Ana" autocomplete="off" />
+    <label>Elige tu avatar</label>
+    <div id="avatarGrid" class="avatar-grid"></div>
+    <button id="saveProfileBtn">Guardar perfil</button>
+    <p class="hint">Tu perfil se guarda en Chrome y se sincroniza con tu cuenta de Google si tienes la sesión iniciada en Chrome.</p>
+  </section>
 
-  <label for="room">Código de sala</label>
-  <input id="room" type="text" placeholder="ej: pelicula-viernes" />
+  <!-- Sin sala -->
+  <section id="lobbyView" hidden>
+    <button id="createBtn">🎬 Crear sala</button>
+    <div class="divider"><span>o únete con un código</span></div>
+    <div class="row">
+      <input id="codeInput" type="text" maxlength="7" placeholder="abc-123" autocomplete="off" spellcheck="false" />
+      <button id="joinBtn" class="secondary">Unirme</button>
+    </div>
+    <p class="hint">Cada persona necesita su propia cuenta de MUBI y abrir la misma película.</p>
+  </section>
 
-  <label for="name">Tu nombre (opcional)</label>
-  <input id="name" type="text" placeholder="Ana" />
+  <!-- En sala -->
+  <section id="roomView" hidden>
+    <div class="code-box">
+      <div class="code-label">Código de la sala</div>
+      <div id="roomCode" class="code"></div>
+    </div>
+    <div class="row">
+      <button id="copyLinkBtn">🔗 Copiar enlace</button>
+      <button id="copyCodeBtn" class="secondary">Copiar código</button>
+    </div>
+    <div class="members-title">En la sala</div>
+    <ul id="membersList" class="members"></ul>
+    <button id="leaveBtn" class="danger">Salir de la sala</button>
+  </section>
 
-  <div class="buttons">
-    <button id="connectBtn">Conectar</button>
-    <button id="disconnectBtn" class="secondary">Desconectar</button>
-  </div>
+  <div id="status" class="status" hidden></div>
 
-  <div id="status" class="status offline">Desconectado</div>
-  <div id="peers" class="peers"></div>
+  <details id="advanced">
+    <summary>Opciones avanzadas</summary>
+    <label for="serverInput">Servidor propio (opcional)</label>
+    <input id="serverInput" type="text" placeholder="wss://mi-servidor.onrender.com" spellcheck="false" />
+    <div class="row">
+      <button id="saveServerBtn" class="secondary">Guardar</button>
+      <button id="resetServerBtn" class="secondary">Restablecer</button>
+    </div>
+  </details>
 
-  <p class="hint">
-    Abre la misma película en Mubi en ambas PCs, usa el mismo código de sala
-    y conecta en ambos navegadores. Cada quien reproduce con su propia cuenta.
-  </p>
+  <footer>No afiliado con MUBI.</footer>
 
+  <script src="config.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

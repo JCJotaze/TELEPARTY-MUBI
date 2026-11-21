@@ -1,10 +1,11 @@
 {
-  "name": "mubi-sync-server",
-  "version": "1.0.0",
-  "description": "Servidor de señalización para sincronizar reproducción de Mubi entre dos navegadores",
+  "name": "watch-party-mubi-server",
+  "version": "2.0.0",
+  "description": "Servidor de sincronización para la extensión Watch Party for MUBI",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "node --test"
   },
   "engines": {
     "node": ">=18"

@@ -1,70 +1,75 @@
-# Mubi Sync
+# Watch Party for MUBI
 
-Extensión estilo Teleparty para sincronizar la reproducción de Mubi entre dos
-personas conectadas desde PCs distintas. Cada persona usa **su propia cuenta**
-de Mubi; la extensión solo sincroniza los comandos de play, pausa y avance —
-no transmite video ni audio.
+Extensión de Chrome para ver películas de MUBI **sincronizadas con tus amigos**, estilo Teleparty.
+Cada persona usa **su propia cuenta** de MUBI; la extensión solo sincroniza play, pausa,
+saltos y el minuto actual — no transmite video ni audio.
 
-## Cómo funciona
-1. Un pequeño servidor (`server/`) recibe conexiones WebSocket y las agrupa
-   por "sala" (un código de texto que ustedes eligen).
-2. La extensión de Chrome (`extension/`) detecta el reproductor de video en
-   la página de Mubi y, cuando alguien le da play/pausa o adelanta la
-   película, avisa al servidor, que se lo reenvía a la otra persona.
-3. Cada 5 segundos también se envía un "latido" con el tiempo actual, para
-   corregir pequeños desfases (por ejemplo, si a uno le carga más lento).
+> No afiliado, patrocinado ni respaldado por MUBI.
 
-## 1. Desplegar el servidor
-Necesitas alojar `server/` en algún lugar accesible por internet (no puede
-quedarse solo en tu PC, salvo que uses algo como ngrok). La opción más simple
-y gratuita es Render:
+## Qué incluye
 
-1. Crea una cuenta en https://render.com
-2. "New +" → "Web Service" → sube la carpeta `server/` (puedes subirla a un
-   repositorio de GitHub primero, o usar "Deploy from a public Git repo").
-3. Configura:
-   - Build command: `npm install`
-   - Start command: `npm start`
-4. Al desplegar, Render te da una URL tipo `https://mubi-sync.onrender.com`.
-   Para la extensión usa la versión WebSocket segura, cambiando `https://`
-   por `wss://`, ejemplo: `wss://mubi-sync.onrender.com`.
+- **Perfiles**: nombre + avatar, guardados en Chrome y sincronizados con tu cuenta de Google de Chrome.
+- **Salas con código aleatorio** (`abc-123`) y **enlace de invitación**: tu amigo abre el enlace y entra solo.
+- **Servidor fijo**: los usuarios no tienen que pegar ninguna URL (hay un campo avanzado opcional).
+- **Avisos en pantalla**: "🐱 Ana pausó", "Luis se unió"… también en pantalla completa.
+- **Quien llega tarde se pone al día** automáticamente con el minuto del anfitrión.
+- **Reconexión automática** si se corta internet o el servidor de Render se reinicia/despierta.
+- **Anfitrión**: solo él manda las correcciones periódicas, para que no haya saltos.
+- Servidor endurecido: solo acepta conexiones desde la extensión, valida todo, máx. 10 personas
+  por sala, límite de mensajes por segundo y limpieza de conexiones muertas.
 
-Alternativas igual de válidas: Railway.app, Fly.io, o tu propio VPS con
-`node server.js` detrás de un proxy con HTTPS/WSS.
+## Estructura
 
-Para probar rápido en la misma red o con ngrok sin desplegar nada:
 ```
+extension/   Extensión de Chrome (Manifest V3)
+  config.js    ← URL del servidor por defecto (EDITAR ANTES DE PUBLICAR)
+server/      Servidor WebSocket (Node.js) — se despliega en Render
+  privacy.html ← política de privacidad, servida en /privacy
+docs/        Textos para la ficha de Chrome Web Store
+```
+
+## 1. Servidor en Render
+
+1. **New + → Web Service** → elige este repositorio.
+2. **Root Directory**: `server` · **Build**: `npm install` · **Start**: `npm start`.
+3. (Recomendado tras publicar) en **Environment** añade
+   `ALLOWED_EXTENSION_IDS` = el ID de tu extensión en la Chrome Web Store
+   (varios separados por coma). Así nadie más puede usar tu servidor.
+4. Comprueba que funciona abriendo `https://TU-SERVICIO.onrender.com/` (debe decir `ok`).
+   La política de privacidad queda en `https://TU-SERVICIO.onrender.com/privacy`.
+
+> En el plan gratis Render duerme el servidor tras un rato sin uso. La extensión muestra
+> "Despertando el servidor…" y se conecta sola en cuanto despierta (puede tardar ~1 min).
+
+## 2. Poner tu servidor en la extensión
+
+Edita `extension/config.js`:
+
+```js
+const DEFAULT_SERVER_URL = "wss://TU-SERVICIO.onrender.com";
+```
+
+(Es la URL de Render cambiando `https://` por `wss://`.)
+
+## 3. Probar la extensión
+
+1. Abre `chrome://extensions` y activa **Modo de desarrollador**.
+2. **Cargar descomprimida** → carpeta `extension/`.
+3. Abre el ícono de la extensión, crea tu perfil y pulsa **Crear sala**.
+4. Abre la película en MUBI, pulsa **Copiar enlace** y envíaselo a tu amigo.
+
+## 4. Publicar en la Chrome Web Store
+
+Sigue la guía paso a paso en [`docs/PUBLICAR.md`](docs/PUBLICAR.md).
+
+## Pruebas del servidor
+
+```bash
 cd server
 npm install
-npm start
-# en otra terminal:
-ngrok http 8080
+npm test
 ```
-Y usa la URL que te da ngrok (cambiando a `wss://`).
 
-## 2. Instalar la extensión en Chrome (cada persona, en su PC)
-1. Abre `chrome://extensions`
-2. Activa "Modo de desarrollador" (arriba a la derecha)
-3. Clic en "Cargar descomprimida" ("Load unpacked")
-4. Selecciona la carpeta `extension/`
-5. Verás el ícono de Mubi Sync en la barra de extensiones
+## Licencia
 
-## 3. Usarla
-1. Ambas personas abren la **misma película** en Mubi y la dejan pausada
-   en el inicio.
-2. Ambas abren el popup de la extensión y completan:
-   - **Servidor**: la URL `wss://...` del paso 1 (la misma para ambas)
-   - **Código de sala**: cualquier palabra que acuerden, ej. `viernes-cine`
-     (debe ser exactamente igual en ambas)
-   - **Nombre**: opcional
-3. Clic en "Conectar" en ambos navegadores.
-4. Cuando el popup diga "2 personas en la sala", ¡ya está sincronizado!
-   Al darle play, pausa o adelantar en un lado, se refleja en el otro.
-
-## Notas
-- Si Mubi cambia la estructura de su reproductor, puede que el content
-  script necesite ajustarse (busca el `<video>` de la página).
-- El servidor no guarda nada en disco; si se reinicia, solo hay que volver
-  a conectar desde el popup.
-- Esto no evita ni modifica ninguna protección de Mubi: cada persona
-  reproduce el contenido normalmente con su propia suscripción.
+[MIT](LICENSE)
